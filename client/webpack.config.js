@@ -1,9 +1,10 @@
 const path = require('path');
 const webpack = require('webpack');
-var autoprefixer = require('autoprefixer');
-var HtmlWebpackPlugin = require("html-webpack-plugin");
-var WriteFilePlugin = require('write-file-webpack-plugin');
+const autoprefixer = require('autoprefixer');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const WriteFilePlugin = require('write-file-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const vendorsExtractPlugin = new MiniCssExtractPlugin({
     filename: 'style.css',
@@ -18,7 +19,7 @@ module.exports = (env) => {
     const config = {
         devServer: {
             host: 'localhost',
-            port: 3000,
+            port: 3010,
             hot: true,
             inline: true,
             contentBase: path.resolve(__dirname, 'dist'),
@@ -201,6 +202,7 @@ module.exports = (env) => {
                 //     filename: "[name]-[hash].css",
                 //     chunkFilename: '[name]-[hash].css'
                 // }),
+                new CopyWebpackPlugin([ { from: 'public/assets', to: 'assets' }],  { copyUnmodified: true }),
                 new webpack.optimize.OccurrenceOrderPlugin(),
                 new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
                 new webpack.DefinePlugin({
