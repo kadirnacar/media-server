@@ -29,7 +29,7 @@ class App extends React.Component<any, any>{
     }
 
     render() {
-        return <div className={"layout-wrapper layout-static " + (this.state.sideBarToggle ? "layout-static-sidebar-inactive" : "")}>
+        return <div className={"layout-wrapper layout-static " + (this.state.sideBarToggle ? "layout-static-sidebar-inactive layout-mobile-sidebar-active" : "")}>
             <Topbar onToggleMenu={this.onToggleMenu.bind(this)} />
             <Sidebar />
             <div className="layout-main">

@@ -11,13 +11,14 @@ export class VideoStreamRouter {
     configDb;
     configFilePath;
     configAdapter;
-
     constructor() {
         this.router = Router();
         ffmpeg.setFfmpegPath(ffmpegPath.path)
         this.configFilePath = path.resolve("config.json");
         this.init();
     }
+    static procs = {};
+
     public async getVideo(req: Request, res: Response, next) {
         const config = await this.configDb.get('Config').value().data;
         const folder = path.join(req.params.name ? req.params.name : "", Object.getOwnPropertyNames(req.params).map((item) => {
@@ -63,9 +64,12 @@ export class VideoStreamRouter {
                 // setup event handlers
                 .on('end', function () {
                     console.log('file has been converted succesfully');
+                    delete VideoStreamRouter.procs[folder];
+
                 })
-                .on('progress', function (progress) {
-                    console.log(progress);
+                .on('progress', (progress) => {
+                    console.log(folder, progress.percent, progress);
+                    VideoStreamRouter.procs[folder] = progress;
                 })
                 .on('error', function (err, stdout, stdin) {
                     console.log('an error happened: ' + err.message);

@@ -5,6 +5,8 @@ import * as lowdb from 'lowdb';
 import * as FileAsync from "lowdb/adapters/FileAsync";
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as ffmpegPath from '@ffmpeg-installer/ffmpeg';
+import { VideoStreamRouter } from "./stream";
+
 
 export class FoldersRouter {
 
@@ -25,7 +27,7 @@ export class FoldersRouter {
         this.init();
     }
 
-    walk = async (dir, filelist = []) => {
+    walk = async (dir, source, target, filelist = []) => {
         const files = await fs.readdirSync(dir);
 
         for (const file of files) {
@@ -33,11 +35,20 @@ export class FoldersRouter {
             const stat = await fs.statSync(filepath);
 
             if (stat.isDirectory()) {
-                filelist.push({ data: { name: file, type: "Folder" }, label: file, children: await this.walk(filepath) });
+                filelist.push({
+                    data: { name: file, type: "Folder" },
+                    label: file,
+                    children: []//await this.walk(filepath, source, target)
+                });
             } else {
                 const nameExt = file.split('.').pop();
                 if (nameExt == "avi" || nameExt == "mpg" || nameExt == "mkv") {
-                    filelist.push({ label: file, data: { name: file, type: "Document" } });
+                    const tempFilePath = filepath.replace(source, target);
+                    const name = tempFilePath.split('.').slice(0, -1).join('.');
+                    const procName = filepath.replace(source + "\\", "");
+                    const process = VideoStreamRouter.procs[procName];
+                    const isTempExists = fs.existsSync(name + ".mp4");
+                    filelist.push({ label: file, data: { process: process, name: file, hasTemp: isTempExists, type: "Document" } });
                 }
             }
         }
@@ -49,7 +60,7 @@ export class FoldersRouter {
         const folder = path.join(req.params.folders ? req.params.folders : "", Object.getOwnPropertyNames(req.params).map((item) => {
             return item != "folders" ? req.params[item] : null;
         }).filter((item) => { return item != null }).join('/'));
-        var list = { data: await this.walk(path.join(config.sourceFolder, folder ? folder : "")) };
+        var list = { data: await this.walk(path.join(config.sourceFolder, folder ? folder : ""), config.sourceFolder, config.tempFolder) };
         res.status(200).send(list);
     }
 
@@ -68,23 +79,24 @@ export class FoldersRouter {
         }).filter((item) => { return item != null }).join('/'));
         const file = path.join(config.sourceFolder, folder);
 
-        if (await fs.existsSync(file)) {
+        if (fs.existsSync(file)) {
             const stat = fs.statSync(file);
             if (stat.isFile()) {
                 const nameExt = file.split('.').pop();
                 if (nameExt == "avi" || nameExt == "mpg" || nameExt == "mkv") {
                     const name = folder.split('.').slice(0, -1).join('.');
-                    if (await fs.existsSync(path.join(config.sourceFolder, name + '.png'))) {
+                    if (fs.existsSync(path.join(config.sourceFolder, name + '.png'))) {
                         res.status(200).sendFile(path.join(config.sourceFolder, name + '.png'));
 
                     } else {
-                        await ffmpeg(file)
+                        ffmpeg(file)
                             .on('end', function () {
                                 res.status(200).sendFile(path.join(config.sourceFolder, name + '.png'));
                             })
                             .screenshots({
                                 // Will take screens at 20%, 40%, 60% and 80% of the video
                                 count: 1,
+                                size: '180x140',
                                 filename: name + '.png',
                                 folder: config.sourceFolder
                             });
@@ -108,8 +120,8 @@ export class FoldersRouter {
             .write();
         this.router.get('/path/:folders?', this.getFolders.bind(this));
         this.router.get('/path/:folders*', this.getFolders.bind(this));
-        this.router.get('/img/:folders*', this.getFolderImage.bind(this));
         this.router.get('/img/:folders?', this.getFolderImage.bind(this));
+        this.router.get('/img/:folders*', this.getFolderImage.bind(this));
         // this.router.put('/', this.updateFolders.bind(this));
     }
 
