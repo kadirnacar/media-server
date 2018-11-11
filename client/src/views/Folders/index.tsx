@@ -54,8 +54,10 @@ export class Folders extends React.Component<any, any>{
                                         <Card title={item.label} footer={footer} header={headerFolder}>
                                         </Card>
                                     </div> :
-                                    <Card className="box" title={item.label} footer={footer} header={header}>
-                                    </Card>}
+                                    <div onClick={() => { this.props.history.push("/player/" + (this.props.match.params.folder ? this.props.match.params.folder + "/" : "") + item.label); }}>
+                                        <Card className="box" title={item.label} footer={footer} header={header}>
+                                        </Card>
+                                    </div>}
 
                             </div>
                         }) : null}

@@ -35,7 +35,7 @@ class App extends React.Component<any, any>{
             <div className="layout-main">
                 <Route exact path="/" component={Home} />
                 <Route path="/folders/path/:folder*" component={Folders} />
-                <Route path="/player" component={Flowplayer} />
+                <Route path="/player/:folder*" component={Flowplayer} />
                 <Route path="/config" component={Config} />
             </div>
             <Footer />

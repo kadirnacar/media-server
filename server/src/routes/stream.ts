@@ -2,24 +2,44 @@ import { Request, Response, Router } from 'express';
 import * as ffmpegPath from '@ffmpeg-installer/ffmpeg';
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as  fs from 'fs';
+import * as path from 'path';
+import * as FileAsync from "lowdb/adapters/FileAsync";
+import * as lowdb from 'lowdb';
+
 export class VideoStreamRouter {
     router: Router;
+    configDb;
+    configFilePath;
+    configAdapter;
+
     constructor() {
         this.router = Router();
         ffmpeg.setFfmpegPath(ffmpegPath.path)
+        this.configFilePath = path.resolve("config.json");
         this.init();
     }
-    public getVideo(req: Request, res: Response, next) {
-        const name = req.params.name;
-        const nameExt = name.split('.').slice(0, -1).join('.');
-        var pathToMovie = 'F:\\Arsiv\\Filmler\\';
-        var tempToMovie = 'F:\\Arsiv\\Temp\\';
+    public async getVideo(req: Request, res: Response, next) {
+        const config = await this.configDb.get('Config').value().data;
+        const folder = path.join(req.params.name ? req.params.name : "", Object.getOwnPropertyNames(req.params).map((item) => {
+            return item != "name" ? req.params[item] : null;
+        }).filter((item) => { return item != null }).join('/'));
+
+        const nameExt = folder.split('.').slice(0, -1).join('.');
+        const subFolders = folder.split('\\').slice(0, -1);
+        let currentPath = config.tempFolder;
+        subFolders.forEach((item, index) => {
+            currentPath = path.join(currentPath, item);
+            if (!fs.existsSync(currentPath)) {
+                fs.mkdirSync(currentPath);
+            }
+        });
+
         res.contentType('video/mp4');
         res.setHeader("Content-Disposition", "attachment")
         res.attachment('name');
-        if (!fs.existsSync(tempToMovie + nameExt + ".mp4")) {
+        if (!fs.existsSync(path.join(config.tempFolder, nameExt + ".mp4"))) {
             // Do something
-            ffmpeg(pathToMovie + name)
+            ffmpeg(path.join(config.sourceFolder, folder))
                 // set video bitrate
                 // .videoBitrate(1024)
                 // set h264 preset
@@ -53,10 +73,10 @@ export class VideoStreamRouter {
                 // .pipe(res);
                 // save to file
                 // .save(tempToMovie + name + ".m3u8")
-                .save(tempToMovie + nameExt + ".mp4");
+                .save(path.join(config.tempFolder, nameExt + ".mp4"));
         }
 
-        res.status(200).sendfile(tempToMovie + nameExt + ".mp4");
+        res.status(200).sendfile(path.join(config.tempFolder, nameExt + ".mp4"));
     }
     getTs(req: Request, res: Response, next) {
         res.setHeader('Access-Control-Allow-Origin', "*");
@@ -66,10 +86,13 @@ export class VideoStreamRouter {
         const name = req.params.name;
         res.status(200).sendfile(tempToMovie + name);
     }
-    
-    init() {
+
+    async init() {
+        this.configAdapter = new FileAsync(this.configFilePath);
+        this.configDb = await lowdb(this.configAdapter);
+
         this.router.get('/ts/:name', this.getTs.bind(this));
-        this.router.get('/:name', this.getVideo.bind(this));
+        this.router.get('/:name*', this.getVideo.bind(this));
     }
 }
 

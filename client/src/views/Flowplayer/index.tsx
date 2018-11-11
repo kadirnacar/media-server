@@ -10,8 +10,9 @@ export class Flowplayer extends React.Component<any, any>{
   }
 
   render() {
+    console.log(this.props);
     return <ReactPlayer
-    url={`${config.restUrl}/api/video/Bab'Aziz (2005).mp4`} playing controls width="100%" height="100%" />
+      url={`${config.restUrl}/api/video/${this.props.match.params.folder}`} playing controls width="100%" height="100%" />
     // <ReactHLS url={`${config.restUrl}/api/video/ts/neseli_gunler.mp4`} autoplay={true} constrols={true} width="100%" height="100%" />
     //   <ReactFlowPlayer
     //   playerInitScript="https://cdnjs.cloudflare.com/ajax/libs/flowplayer/7.2.7/flowplayer.min.js"
