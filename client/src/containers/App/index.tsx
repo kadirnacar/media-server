@@ -1,10 +1,15 @@
 import * as React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Home from '../../views/Home';
-import Data from '../../views/Data';
+import Flowplayer from '../../views/Flowplayer';
+import Config from '../../views/Config';
+import Folders from '../../views/Folders';
 import Topbar from '../Topbar';
 import Footer from '../Footer';
 import Sidebar from '../Sidebar';
+import { connect } from 'react-redux';
+import * as ConfigState from '../../reducers/config';
+import { ApplicationState } from '../../store';
 
 class App extends React.Component<any, any>{
     constructor(props) {
@@ -13,7 +18,9 @@ class App extends React.Component<any, any>{
             sideBarToggle: false
         };
     }
-
+    componentWillMount() {
+        this.props.getConfig();
+    }
     onToggleMenu(event) {
         this.setState({
             sideBarToggle: !this.state.sideBarToggle
@@ -27,7 +34,9 @@ class App extends React.Component<any, any>{
             <Sidebar />
             <div className="layout-main">
                 <Route exact path="/" component={Home} />
-                <Route exact path="/data" component={Data} />
+                <Route path="/folders/path/:folder*" component={Folders} />
+                <Route path="/player" component={Flowplayer} />
+                <Route path="/config" component={Config} />
             </div>
             <Footer />
             <div className="layout-mask"></div>
@@ -35,4 +44,8 @@ class App extends React.Component<any, any>{
     }
 }
 
-export default App;
+// export default App;
+export default connect(
+    (state: ApplicationState) => state.Config,
+    ConfigState.actionCreators
+)(App);

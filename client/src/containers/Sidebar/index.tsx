@@ -18,7 +18,9 @@ export class Sidebar extends React.Component<any, any>{
     render() {
         const menu = [
             { label: 'Anasayfa', icon: 'pi pi-fw pi-home', url: "/" },
-            { label: 'Data', icon: 'pi pi-fw pi-align-justify', url: "/data" }
+            { label: 'Folders', icon: 'fa pi-fw fa-folder-open', url: "/folders/path" },
+            { label: 'Player', icon: 'fa pi-fw fa-play', url: "/player" },
+            { label: 'Config', icon: 'fa pi-fw fa-cogs', url: "/config" }
         ];
 
         return <div className="layout-sidebar layout-sidebar-dark" onClick={this.onSidebarClick.bind(this)}>

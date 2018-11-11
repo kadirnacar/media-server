@@ -1,12 +1,15 @@
 
-import { DemoState, reducer as demoReducer } from '../reducers/demo';
+import { ConfigState, reducer as configReducer } from '../reducers/config';
+import { FoldersState, reducer as foldersReducer } from '../reducers/folders';
 
 export interface ApplicationState {
-    Demo: DemoState;
+    Config: ConfigState;
+    Folders: FoldersState;
 }
 
 export const reducers = {
-    Demo: demoReducer
+    Config: configReducer,
+    Folders: foldersReducer
 };
 
 export interface AppThunkAction<TAction> {

@@ -10,6 +10,7 @@ import 'primereact/resources/themes/nova-dark/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
+import 'font-awesome/css/font-awesome.css';
 import './layout/layout.scss';
 
 const initialState = (window as any).initialReduxState;

@@ -24,9 +24,13 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.16",
     "body-parser": "^1.18.3",
+    "child_process": "^1.0.2",
     "cors-prefetch-middleware": "^1.0.0",
     "express": "^4.16.4",
-    "lowdb": "^1.0.0"
+    "fluent-ffmpeg": "^2.1.2",
+    "lowdb": "^1.0.0",
+    "through": "^2.3.8"
   }
 }

@@ -2,7 +2,9 @@ import * as bodyParser from "body-parser";
 import corsPrefetch from 'cors-prefetch-middleware';
 import * as express from "express";
 import * as path from "path";
-import DemoRouter from "./routes/demo";
+import VideoStreamRouter from "./routes/stream";
+import ConfigRouter from "./routes/config";
+import FoldersRouter from "./routes/folders";
 
 
 class App {
@@ -18,7 +20,7 @@ class App {
 
   /** Configure Express middleware. */
   private middleware(): void {
-    
+
     // Configure Cors.
     this.express.use(corsPrefetch);
 
@@ -34,16 +36,18 @@ class App {
     this.express.use(express.static("."));
     this.express.use(express.static("js"));
     this.express.use(express.static("dist/uploads"));
-    this.express.use(/\/((?!api).)*/, function (req, res) {
-      // res.sendFile('index.html', { root: path.resolve(".") }, function (err) {
-      //   if (err) {
-      //     res.status(500).send(err)
-      //   }
-      // })
-    }) 
-    
+    // this.express.use(/\/((?!api).)*/, function (req, res) {
+    //   // res.sendFile('index.html', { root: path.resolve(".") }, function (err) {
+    //   //   if (err) {
+    //   //     res.status(500).send(err)
+    //   //   }
+    //   // })
+    // })
     this.express.use("/", router);
-    this.express.use("/api/demo", DemoRouter);
+    this.express.use("/api/video", VideoStreamRouter);
+    this.express.use("/api/config", ConfigRouter);
+    this.express.use("/api/folders", FoldersRouter);
+    
   }
 }
 

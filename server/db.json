@@ -1,10 +1,6 @@
 {
   "DataList": [
     {
-      "id": 0.21159446646606583,
-      "name": "deneme"
-    },
-    {
       "id": 0.6651610346773111,
       "name": "deneme"
     },
@@ -29,8 +25,12 @@
       "name": "deneme"
     },
     {
-      "isNew": true,
-      "name": "ghghh"
+      "id": 0.7757197544208094,
+      "name": "trtrrttr"
+    },
+    {
+      "id": 0.6846586920605293,
+      "name": "fggfgf"
     }
   ]
 }
